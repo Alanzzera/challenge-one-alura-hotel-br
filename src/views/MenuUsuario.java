@@ -6,16 +6,14 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.ActionEvent;
 import java.awt.Toolkit;
 import javax.swing.SwingConstants;
 import java.awt.event.MouseMotionAdapter;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.awt.SystemColor;
@@ -93,7 +91,12 @@ public class MenuUsuario extends JFrame {
 			}
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				Buscar buscar = new Buscar();
+				Buscar buscar = null;
+				try {
+					buscar = new Buscar();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
 				buscar.setVisible(true);
 				dispose();
 			}
@@ -130,7 +133,13 @@ public class MenuUsuario extends JFrame {
 			}
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				ReservasView reservas = new ReservasView();
+				ReservasView reservas = null;
+				try {
+					reservas = new ReservasView();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				reservas.setVisible(true);
 				dispose();
 			}
@@ -202,7 +211,7 @@ public class MenuUsuario extends JFrame {
 	    labelFecha.setBounds(35, 64, 294, 36);
 	    panelFecha.add(labelFecha);
 	    labelFecha.setForeground(Color.WHITE);
-	    labelFecha.setFont(new Font("Roboto", Font.PLAIN, 33));
+	    labelFecha.setFont(new Font("Roboto", Font.PLAIN, 24));
 	    Date fechaActual = new Date(); //data atual
 	    String fecha = new SimpleDateFormat("dd/MM/yyyy").format(fechaActual); //formata a data numa string
 	    labelFecha.setText("Hoje é " + fecha); //estabelece a data na label

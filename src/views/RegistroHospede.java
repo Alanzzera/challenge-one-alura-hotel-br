@@ -7,6 +7,11 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.JTextField;
 import java.awt.Color;
 import com.toedter.calendar.JDateChooser;
+
+import br.com.alura.jdbc.Modelo.Hospede;
+import br.com.alura.jdbc.controller.HospedeController;
+import br.com.alura.jdbc.controller.ReservaController;
+
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JLabel;
@@ -19,7 +24,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.sql.SQLException;
 import java.text.Format;
+import java.time.LocalDate;
 import java.awt.event.ActionEvent;
 import java.awt.Toolkit;
 import javax.swing.SwingConstants;
@@ -38,6 +45,7 @@ public class RegistroHospede extends JFrame {
 	private JLabel labelExit;
 	private JLabel labelAtras;
 	int xMouse, yMouse;
+	private HospedeController hospedeController;
 
 	/**
 	 * Launch the application.
@@ -46,7 +54,7 @@ public class RegistroHospede extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					RegistroHospede frame = new RegistroHospede();
+					RegistroHospede frame = new RegistroHospede(0);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -58,7 +66,9 @@ public class RegistroHospede extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public RegistroHospede() {
+	public RegistroHospede(Object idReserva) {
+		
+		hospedeController = new HospedeController();
 		
 		setIconImage(Toolkit.getDefaultToolkit().getImage(RegistroHospede.class.getResource("/imagenes/lOGO-50PX.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -127,7 +137,13 @@ public class RegistroHospede extends JFrame {
 		btnAtras.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				ReservasView reservas = new ReservasView();
+				ReservasView reservas = null;
+				try {
+					reservas = new ReservasView();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				reservas.setVisible(true);
 				dispose();				
 			}
@@ -142,21 +158,21 @@ public class RegistroHospede extends JFrame {
 			     labelAtras.setForeground(Color.white);
 			}
 		});
-		btnAtras.setLayout(null);
-		btnAtras.setBackground(new Color(12, 138, 199));
-		btnAtras.setBounds(0, 0, 53, 36);
-		header.add(btnAtras);
+//		btnAtras.setLayout(null);
+//		btnAtras.setBackground(new Color(12, 138, 199));
+//		btnAtras.setBounds(0, 0, 53, 36);
+//		header.add(btnAtras);
 		
 		labelAtras = new JLabel("<");
 		labelAtras.setHorizontalAlignment(SwingConstants.CENTER);
 		labelAtras.setForeground(Color.WHITE);
-		labelAtras.setFont(new Font("Roboto", Font.PLAIN, 23));
+		labelAtras.setFont(new Font("Roboto", Font.PLAIN, 16));
 		labelAtras.setBounds(0, 0, 53, 36);
 		btnAtras.add(labelAtras);
 		
 		
 		txtNome = new JTextField();
-		txtNome.setFont(new Font("Roboto", Font.PLAIN, 16));
+		txtNome.setFont(new Font("Roboto", Font.PLAIN, 14));
 		txtNome.setBounds(560, 135, 285, 33);
 		txtNome.setBackground(Color.WHITE);
 		txtNome.setColumns(10);
@@ -164,7 +180,7 @@ public class RegistroHospede extends JFrame {
 		contentPane.add(txtNome);
 		
 		txtSobrenome = new JTextField();
-		txtSobrenome.setFont(new Font("Roboto", Font.PLAIN, 16));
+		txtSobrenome.setFont(new Font("Roboto", Font.PLAIN, 14));
 		txtSobrenome.setBounds(560, 204, 285, 33);
 		txtSobrenome.setColumns(10);
 		txtSobrenome.setBackground(Color.WHITE);
@@ -181,42 +197,42 @@ public class RegistroHospede extends JFrame {
 		txtNacionalidade = new JComboBox();
 		txtNacionalidade.setBounds(560, 350, 289, 36);
 		txtNacionalidade.setBackground(SystemColor.text);
-		txtNacionalidade.setFont(new Font("Roboto", Font.PLAIN, 16));
+		txtNacionalidade.setFont(new Font("Roboto", Font.PLAIN, 14));
 		txtNacionalidade.setModel(new DefaultComboBoxModel(new String[] {"alemão", "andorrano", "angolano", "antiguano", "saudita", "argelino", "argentino", "armênio", "australiano", "austríaco", "azerbaijano", "bahamense", "bangladês, bangladense", "barbadiano", "bahreinita", "belga", "belizenho", "beninês", "belarusso", "boliviano", "bósnio", "botsuanês", "brasileiro", "bruneíno", "búlgaro", "burkineonse, burkinabé", "burundês", "butanês", "cabo-verdiano", "camerounês", "cambojano", "catariano", "canadense", "cazaque", "chadiano", "chileno", "chinês", "cipriota", "colombiano", "comoriano", "congolês", "congolês", "sul-coreano", "norte-coreano", "costa-marfinense, marfinense", "costa-ricense", "croata", "cubano", "dinamarquês", "djiboutiano", "dominiquense", "egípcio", "salvadorenho", "emiradense, emirático", "equatoriano", "eritreu", "eslovaco", "esloveno", "espanhol", "estadunidense, (norte-)americano", "estoniano", "etíope", "fijiano", "filipino", "finlandês", "francês", "gabonês", "gambiano", "ganês ou ganense", "georgiano", "granadino", "grego", "guatemalteco", "guianês", "guineense", "guineense, bissau-guineense", "equato-guineense", "haitiano", "hondurenho", "húngaro", "iemenita", "cookiano", "marshallês", "salomonense", "indiano", "indonésio", "iraniano", "iraquiano", "irlandês", "islandês", "34", "jamaicano", "japonês", "jordaniano", "kiribatiano", "kuwaitiano", "laosiano", "lesotiano", "letão", "libanês", "liberiano", "líbio", "liechtensteiniano", "lituano", "luxemburguês", "macedônio", "madagascarense", "malásio37", "malawiano", "maldivo", "maliano", "maltês", "marroquino", "mauriciano", "mauritano", "mexicano", "myanmarense", "micronésio", "moçambicano", "moldovo", "monegasco", "mongol", "montenegrino", "namibiano", "nauruano", "nepalês", "nicaraguense", "nigerino", "nigeriano", "niuiano", "norueguês", "neozelandês", "omani", "neerlandês", "palauano", "palestino", "panamenho", "papua, papuásio", "paquistanês", "paraguaio", "peruano", "polonês, polaco", "português", "queniano", "quirguiz", "britânico", "centro-africano", "tcheco", "dominicano", "romeno", "ruandês", "russo", "samoano", "santa-lucense", "são-cristovense", "samarinês", "santomense", "são-vicentino", "seichelense", "senegalês", "sérvio", "singapurense", "sírio", "somaliano, somali", "sri-lankês", "suázi", "sudanês", "sul-sudanês", "sueco", "suíço", "surinamês", "tajique", "tailandês", "tanzaniano", "timorense", "togolês", "tonganês", "trinitário", "tunisiano", "turcomeno", "turco", "tuvaluano", "ucraniano", "ugandês", "uruguaio", "uzbeque", "vanuatuense", "vaticano", "venezuelano", "vietnamita", "zambiano", "zimbabueano"}));
 		contentPane.add(txtNacionalidade);
 		
 		JLabel lblNome = new JLabel("NOME");
 		lblNome.setBounds(562, 119, 253, 14);
 		lblNome.setForeground(SystemColor.textInactiveText);
-		lblNome.setFont(new Font("Roboto Black", Font.PLAIN, 18));
+		lblNome.setFont(new Font("Roboto Black", Font.PLAIN, 14));
 		contentPane.add(lblNome);
 		
 		JLabel lblSobrenome = new JLabel("SOBRENOME");
 		lblSobrenome.setBounds(560, 189, 255, 14);
 		lblSobrenome.setForeground(SystemColor.textInactiveText);
-		lblSobrenome.setFont(new Font("Roboto Black", Font.PLAIN, 18));
+		lblSobrenome.setFont(new Font("Roboto Black", Font.PLAIN, 14));
 		contentPane.add(lblSobrenome);
 		
 		JLabel lblDataN = new JLabel("DATA DE NASCIMENTO");
 		lblDataN.setBounds(560, 256, 255, 14);
 		lblDataN.setForeground(SystemColor.textInactiveText);
-		lblDataN.setFont(new Font("Roboto Black", Font.PLAIN, 18));
+		lblDataN.setFont(new Font("Roboto Black", Font.PLAIN, 14));
 		contentPane.add(lblDataN);
 		
 		JLabel lblNacionalidade = new JLabel("NACIONALIDADE");
 		lblNacionalidade.setBounds(560, 326, 255, 14);
 		lblNacionalidade.setForeground(SystemColor.textInactiveText);
-		lblNacionalidade.setFont(new Font("Roboto Black", Font.PLAIN, 18));
+		lblNacionalidade.setFont(new Font("Roboto Black", Font.PLAIN, 14));
 		contentPane.add(lblNacionalidade);
 		
 		JLabel lblTelefone = new JLabel("TELEFONE");
 		lblTelefone.setBounds(562, 406, 253, 14);
 		lblTelefone.setForeground(SystemColor.textInactiveText);
-		lblTelefone.setFont(new Font("Roboto Black", Font.PLAIN, 18));
+		lblTelefone.setFont(new Font("Roboto Black", Font.PLAIN, 14));
 		contentPane.add(lblTelefone);
 		
 		txtTelefone = new JTextField();
-		txtTelefone.setFont(new Font("Roboto", Font.PLAIN, 16));
+		txtTelefone.setFont(new Font("Roboto", Font.PLAIN, 14));
 		txtTelefone.setBounds(560, 424, 285, 33);
 		txtTelefone.setColumns(10);
 		txtTelefone.setBackground(Color.WHITE);
@@ -226,21 +242,24 @@ public class RegistroHospede extends JFrame {
 		JLabel lblTitulo = new JLabel("REGISTRO HÓSPEDE");
 		lblTitulo.setBounds(606, 55, 234, 42);
 		lblTitulo.setForeground(new Color(12, 138, 199));
-		lblTitulo.setFont(new Font("Roboto Black", Font.PLAIN, 23));
+		lblTitulo.setFont(new Font("Roboto Black", Font.PLAIN, 16));
 		contentPane.add(lblTitulo);
 		
 		JLabel lblNumeroReserva = new JLabel("NÚMERO DE RESERVA");
 		lblNumeroReserva.setBounds(560, 474, 253, 14);
 		lblNumeroReserva.setForeground(SystemColor.textInactiveText);
-		lblNumeroReserva.setFont(new Font("Roboto Black", Font.PLAIN, 18));
+		lblNumeroReserva.setFont(new Font("Roboto Black", Font.PLAIN, 14));
 		contentPane.add(lblNumeroReserva);
 		
 		txtNreserva = new JTextField();
+		txtNreserva.setEditable(false);
 		txtNreserva.setFont(new Font("Roboto", Font.PLAIN, 16));
 		txtNreserva.setBounds(560, 495, 285, 33);
 		txtNreserva.setColumns(10);
 		txtNreserva.setBackground(Color.WHITE);
 		txtNreserva.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+		String id = String.valueOf(idReserva);
+		txtNreserva.setText(id);
 		contentPane.add(txtNreserva);
 		
 		JSeparator separator_1_2 = new JSeparator();
@@ -284,6 +303,7 @@ public class RegistroHospede extends JFrame {
 		btnsalvar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				inserirHospede();
 			}
 		});
 		btnsalvar.setLayout(null);
@@ -313,6 +333,21 @@ public class RegistroHospede extends JFrame {
 		logo.setBounds(194, 39, 104, 107);
 		panel.add(logo);
 		logo.setIcon(new ImageIcon(RegistroHospede.class.getResource("/imagenes/Ha-100px.png")));
+	}
+	private void inserirHospede() {
+		if(txtDataN.getDate() != null && !txtNome.equals("") && !txtSobrenome.equals("") && !txtTelefone.equals("")) {
+			LocalDate dataN = LocalDate.parse(((JTextField)txtDataN.getDateEditor().getUiComponent()).getText());
+			int idReserva = Integer.parseInt(txtNreserva.getText());
+			Hospede hospede = 
+					new Hospede(txtNome.getText(), txtSobrenome.getText(), dataN, txtNacionalidade.getSelectedItem().toString(), 
+							txtTelefone.getText(), idReserva);
+			this.hospedeController.inserir(hospede);
+			Sucesso sucesso = new Sucesso();
+			sucesso.setVisible(true);
+			dispose();
+		}else {
+			JOptionPane.showMessageDialog(this, "Todos os Campos Devem Estar Preenchidos.");
+		}
 	}
 	
 	//Código que permite movimentar a janela pela tela seguindo a posição de "x" y "y"
