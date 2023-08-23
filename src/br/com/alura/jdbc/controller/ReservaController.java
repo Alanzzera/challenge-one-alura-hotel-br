@@ -3,6 +3,7 @@ package br.com.alura.jdbc.controller;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 
 import br.com.alura.jdbc.DAO.ReservaDAO;
@@ -31,7 +32,10 @@ public class ReservaController {
 	public void inserir(Reserva reserva) throws SQLException {
 	    this.reservaDAO.inserir(reserva);
 	}
-    public int atualizar(String id, Date data_entrada, Date data_saida, double valor, String forma_pagamento) {
-        return reservaDAO.alterar(id, data_entrada, data_saida, valor, forma_pagamento);
+    public void alterar(LocalDate dataE, LocalDate dataS, String valor, String formaPagamento, Integer id) {
+        this.reservaDAO.alterar(dataE, dataS, valor, formaPagamento, id);
+    }
+    public void deletar(Integer id) {
+    	this.reservaDAO.deletar(id);
     }
 }

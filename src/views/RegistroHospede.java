@@ -46,6 +46,7 @@ public class RegistroHospede extends JFrame {
 	private JLabel labelAtras;
 	int xMouse, yMouse;
 	private HospedeController hospedeController;
+	private ReservaController reservaController;
 
 	/**
 	 * Launch the application.
@@ -69,6 +70,7 @@ public class RegistroHospede extends JFrame {
 	public RegistroHospede(Object idReserva) {
 		
 		hospedeController = new HospedeController();
+	    reservaController = new ReservaController();
 		
 		setIconImage(Toolkit.getDefaultToolkit().getImage(RegistroHospede.class.getResource("/imagenes/lOGO-50PX.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -103,9 +105,14 @@ public class RegistroHospede extends JFrame {
 		btnexit.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				int confirmar = JOptionPane.showConfirmDialog(null, "Deseja Sair? A Reserva sem Hóspede Será Excluída!");
+				if(confirmar == JOptionPane.YES_OPTION) {
+				int idReserva = Integer.parseInt(txtNreserva.getText());
+				reservaController.deletar(idReserva);
 				MenuPrincipal principal = new MenuPrincipal();
 				principal.setVisible(true);
 				dispose();
+				}
 			}
 			@Override
 			public void mouseEntered(MouseEvent e) {
@@ -139,13 +146,18 @@ public class RegistroHospede extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				ReservasView reservas = null;
 				try {
+					int confirmar = JOptionPane.showConfirmDialog(null, "Se voltar a Reserva sem Hóspede Será Excluída!");
+					if(confirmar == JOptionPane.YES_OPTION) {
+					int idReserva = Integer.parseInt(txtNreserva.getText());
+			        reservaController.deletar(idReserva);
 					reservas = new ReservasView();
+					reservas.setVisible(true);
+					dispose();
+					}
 				} catch (SQLException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				reservas.setVisible(true);
-				dispose();				
+				
 			}
 			@Override
 			public void mouseEntered(MouseEvent e) {
@@ -158,10 +170,10 @@ public class RegistroHospede extends JFrame {
 			     labelAtras.setForeground(Color.white);
 			}
 		});
-//		btnAtras.setLayout(null);
-//		btnAtras.setBackground(new Color(12, 138, 199));
-//		btnAtras.setBounds(0, 0, 53, 36);
-//		header.add(btnAtras);
+		btnAtras.setLayout(null);
+		btnAtras.setBackground(new Color(12, 138, 199));
+		btnAtras.setBounds(0, 0, 53, 36);
+		header.add(btnAtras);
 		
 		labelAtras = new JLabel("<");
 		labelAtras.setHorizontalAlignment(SwingConstants.CENTER);

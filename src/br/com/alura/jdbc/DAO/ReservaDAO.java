@@ -23,7 +23,6 @@ public class ReservaDAO {
 
 	public void inserir(Reserva reserva){
 		try {
-			connection.setAutoCommit(false);
 			try (PreparedStatement pstm = 
 					connection.prepareStatement
 					("INSERT INTO RESERVA (DATA_ENTRADA, DATA_SAIDA, VALOR, FORMA_PAGAMENTO) VALUES (?,?,?,?)", Statement.RETURN_GENERATED_KEYS)) {
@@ -33,43 +32,45 @@ public class ReservaDAO {
 				pstm.setString(4, reserva.getForma_pagamento());
 
 				pstm.execute();
-				
+
 				try(ResultSet rst = pstm.getGeneratedKeys()){
 					while(rst.next()) {
 						reserva.setId(rst.getInt(1));
 					}
-				connection.commit();
 				}
 			}
 		}catch(SQLException e) {
-			e.printStackTrace();
-            System.out.println("ROLLBACK EXECUTADO");
-            try {
-				connection.rollback();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
+			throw new RuntimeException(e);
 		}
 	}
 
-	public int alterar(String id, Date data_entrada, Date data_saida, Double valor, String forma_pagamento) {
+	public void alterar(LocalDate dataE, LocalDate dataS, String valor, String formaPagamento, Integer id) {
 		try {
 			String sql = 
-					"UPDATE reserva SET data_entrada = ?, data_saida = ?, valor = ?, forma_pago = ? WHERE id_reserva = ?";
+					"UPDATE reserva SET data_entrada = ?, data_saida = ?, valor = ?, forma_pagamento = ? WHERE id = ?";
 
 			try (PreparedStatement pstm = connection.prepareStatement(sql)) {
-				pstm.setDate(1, data_entrada);
-				pstm.setDate(2, data_saida);
-				pstm.setDouble(3, valor);
-				pstm.setString(4, forma_pagamento);
-				pstm.setString(5, id);
+				pstm.setObject(1, java.sql.Date.valueOf(dataE));
+				pstm.setObject(2, java.sql.Date.valueOf(dataS));
+				pstm.setString(3, valor);
+				pstm.setString(4, formaPagamento);
+				pstm.setInt(5, id);
 
 				pstm.execute();
-				int updateCount = pstm.getUpdateCount();
-				return updateCount;
 			}
 		}catch(SQLException e) {
-			JOptionPane.showMessageDialog(null, "Erro ao atualizar o registro.");
+			throw new RuntimeException(e);
+		}
+	}
+	public void deletar(Integer id){
+		try{
+			Statement state = connection.createStatement();
+			state.execute("SET FOREIGN_KEY_CHECKS=0");
+			PreparedStatement pstm = connection.prepareStatement("DELETE FROM RESERVA WHERE ID = ?");
+			pstm.setInt(1, id);
+			pstm.execute();
+			state.execute("SET FOREIGN_KEY_CHECKS=1");
+		}catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -80,7 +81,7 @@ public class ReservaDAO {
 
 			try(PreparedStatement pstm = connection.prepareStatement(sql)){
 				pstm.execute();
-				
+
 				ResultSet rst = pstm.getResultSet();
 				while(rst.next()) {
 					LocalDate dataE = rst.getDate("data_entrada").toLocalDate().plusDays(1);
@@ -105,7 +106,7 @@ public class ReservaDAO {
 			try(PreparedStatement pstm = connection.prepareStatement(sql)){
 				pstm.setString(1, id);
 				pstm.execute();
-				
+
 				ResultSet rst = pstm.getResultSet();
 				while(rst.next()) {
 					LocalDate dataE = rst.getDate("data_entrada").toLocalDate().plusDays(1);
@@ -122,14 +123,4 @@ public class ReservaDAO {
 			throw new RuntimeException(e);
 		}
 	}
-//	public void deletar(Integer id){
-//		try{
-//			try (PreparedStatement stm = connection.prepareStatement("DELETE FROM RESERVA WHERE ID = ?")) {
-//				stm.setInt(1, id);
-//				stm.execute();
-//			}
-//		}catch (SQLException e) {
-//			throw new RuntimeException(e);
-//		}
-//	}
 }

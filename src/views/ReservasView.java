@@ -214,9 +214,12 @@ public class ReservasView extends JFrame {
 		btnexit.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				MenuPrincipal principal = new MenuPrincipal();
-				principal.setVisible(true);
-				dispose();
+				int confirmar = JOptionPane.showConfirmDialog(null, "Deseja Sair?");
+				if(confirmar == JOptionPane.YES_OPTION) {
+					MenuPrincipal principal = new MenuPrincipal();
+					principal.setVisible(true);
+					dispose();
+				}
 			}
 			@Override
 			public void mouseEntered(MouseEvent e) {
@@ -358,7 +361,12 @@ public class ReservasView extends JFrame {
 			txtValor.setText(""+valor);
 		}
 	}
-
+	public void limparValor() {
+		txtValor.setText("");
+	}
+	public void deletar(Integer id) {
+		reservaController.deletar(id);
+	}
 	//Código que permite movimentar a janela pela tela seguindo a posição de "x" e "y"	
 	private void headerMousePressed(java.awt.event.MouseEvent evt) {
 		xMouse = evt.getX();

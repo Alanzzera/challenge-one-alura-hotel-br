@@ -1,4 +1,4 @@
-	package views;
+package views;
 
 import java.awt.EventQueue;
 import javax.swing.JFrame;
@@ -10,11 +10,16 @@ import br.com.alura.jdbc.Modelo.Hospede;
 import br.com.alura.jdbc.Modelo.Reserva;
 import br.com.alura.jdbc.controller.HospedeController;
 import br.com.alura.jdbc.controller.ReservaController;
+import br.com.alura.jdbc.factory.ConnectionFactory;
+
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.print.attribute.standard.DateTimeAtCompleted;
 import javax.swing.ImageIcon;
 import java.awt.Color;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Font;
 import javax.swing.JTabbedPane;
 import java.awt.Toolkit;
@@ -24,8 +29,15 @@ import javax.swing.ListSelectionModel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.DateTimeException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 
 @SuppressWarnings("serial")
 public class Buscar extends JFrame {
@@ -61,17 +73,17 @@ public class Buscar extends JFrame {
 			}
 		});
 	}
-	
+
 	/**
 	 * Create the frame.
 	 * @throws SQLException 
 	 */
 	public Buscar() throws SQLException{
-		
+
 		reservaController = new ReservaController();
 		hospedeController = new HospedeController();
 		reservasView = new ReservasView();
-		
+
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Buscar.class.getResource("/imagenes/lOGO-50PX.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 910, 571);
@@ -114,7 +126,7 @@ public class Buscar extends JFrame {
 		panel.addTab("Reservas", new ImageIcon(Buscar.class.getResource("/imagenes/reservado.png")), scroll_table, null);
 		scroll_table.setVisible(true);
 		preencherTabelaReserva();
-		
+
 		tbHospedes = new JTable();
 		tbHospedes.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tbHospedes.setFont(new Font("Roboto", Font.PLAIN, 16));
@@ -129,7 +141,7 @@ public class Buscar extends JFrame {
 		JScrollPane scroll_tableHuespedes = new JScrollPane(tbHospedes);
 		panel.addTab("Hóspedes", new ImageIcon(Buscar.class.getResource("/imagenes/pessoas.png")), scroll_tableHuespedes, null);
 		scroll_tableHuespedes.setVisible(true);
-		
+
 		JLabel lblNewLabel_2 = new JLabel("");
 		lblNewLabel_2.setIcon(new ImageIcon(Buscar.class.getResource("/imagenes/Ha-100px.png")));
 		lblNewLabel_2.setBounds(56, 51, 104, 107);
@@ -247,6 +259,16 @@ public class Buscar extends JFrame {
 		lblBuscar.setFont(new Font("Roboto", Font.PLAIN, 18));
 
 		JPanel btnEditar = new JPanel();
+		btnEditar.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				int listaReserva = tbReservas.getSelectedRow();
+				if(listaReserva >= 0){
+					alterarTabela();
+					limparTabela();
+					preencherTabelaReserva();
+				}
+			}
+		});
 		btnEditar.setLayout(null);
 		btnEditar.setBackground(new Color(12, 138, 199));
 		btnEditar.setBounds(635, 508, 122, 35);
@@ -261,6 +283,23 @@ public class Buscar extends JFrame {
 		btnEditar.add(lblEditar);
 
 		JPanel btnDeletar = new JPanel();
+		btnDeletar.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				int listaReservas = tbReservas.getSelectedRow();
+				if(listaReservas >=0){
+					reserva = tbReservas.getValueAt(listaReservas, 0).toString();
+					int confirmar = JOptionPane.showConfirmDialog(null, "Deseja excluir esse registro?");
+					if(confirmar == JOptionPane.YES_OPTION) {
+						String valor = tbReservas.getValueAt(listaReservas, 0).toString();
+						reservaController.deletar(Integer.valueOf(valor));
+						JOptionPane.showMessageDialog(contentPane, "Registro deletado com sucesso.");
+						limparTabela();
+						preencherTabelaReserva();
+					}
+				}
+			}
+		});
+		
 		btnDeletar.setLayout(null);
 		btnDeletar.setBackground(new Color(12, 138, 199));
 		btnDeletar.setBounds(767, 508, 122, 35);
@@ -274,7 +313,7 @@ public class Buscar extends JFrame {
 		lblExcluir.setBounds(0, 0, 122, 35);
 		btnDeletar.add(lblExcluir);
 		setResizable(false);
-		
+
 	}
 	private List<Reserva> listarReserva(){
 		return reservaController.listar();
@@ -304,7 +343,45 @@ public class Buscar extends JFrame {
 		} catch (Exception e) {
 			throw e;
 		}
-		
+
+	}
+	public void alterarTabela() {
+		Optional.ofNullable(modelo.getValueAt(tbReservas.getSelectedRow(), tbReservas.getSelectedColumn()))
+		.ifPresent(fila ->{
+			LocalDate dataE;
+			LocalDate dataS;
+			try {
+				DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+				dataE = LocalDate.parse(modelo.getValueAt(tbReservas.getSelectedRow(), 1).toString(),dateFormat);
+				dataS = LocalDate.parse(modelo.getValueAt(tbReservas.getSelectedRow(), 2).toString(),dateFormat);
+			}catch (DateTimeException e) {
+				throw new RuntimeException(e);
+			}
+			if (dataE.isAfter(dataS)) {
+				JOptionPane.showMessageDialog(this, "A data de check-in não pode ser posterior à data de check-out", "Erro", JOptionPane.ERROR_MESSAGE);
+				return; // Retorna sem prosseguir com a alteração
+			}
+			this.reservasView.limparValor();
+			String valor = calcularValorReserva(dataE, dataS);
+			String formaPagamento = (String)modelo.getValueAt(tbReservas.getSelectedRow(), 4);
+			Integer id = Integer.valueOf((String) modelo.getValueAt(tbReservas.getSelectedRow(), 0).toString());
+			if(tbReservas.getSelectedColumn()==0) {
+				JOptionPane.showMessageDialog(this, "Não pode alterar o ID","Erro", id);
+			}else {
+				this.reservaController.alterar(dataE, dataS, valor, formaPagamento, id);
+				JOptionPane.showMessageDialog(this, "Registro modificado","Sucesso", id);
+			}
+		});
+	}
+	public String calcularValorReserva(LocalDate dataE, LocalDate dataS){
+		if(dataE !=null && dataS !=null) {
+			int dias = (int) ChronoUnit.DAYS.between(dataE, dataS);
+			int valorDia = 80;
+			int valor = dias * valorDia;
+			return Integer.toString(valor);
+		}else {
+			return "";
+		}
 	}
 	private void limparTabela() {
 		((DefaultTableModel) tbHospedes.getModel()).setRowCount(0);
@@ -315,7 +392,6 @@ public class Buscar extends JFrame {
 		xMouse = evt.getX();
 		yMouse = evt.getY();
 	}
-
 	private void headerMouseDragged(java.awt.event.MouseEvent evt) {
 		int x = evt.getXOnScreen();
 		int y = evt.getYOnScreen();
