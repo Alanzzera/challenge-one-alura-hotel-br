@@ -11,15 +11,15 @@ public class Hospede {
 	private LocalDate data_nascimento;
 	private String nacionalidade;
 	private String telefone;
-	private Integer reserva_id;
+	private Integer id_reserva;
 
-	public Hospede(String nome, String sobrenome, LocalDate data_nascimento, String nacionalidade, String telefone, Integer reserva_id) {
+	public Hospede(String nome, String sobrenome, LocalDate data_nascimento, String nacionalidade, String telefone, Integer id_reserva) {
 		this.nome = nome;
 		this.sobrenome = sobrenome;
 		this.data_nascimento = data_nascimento;
 		this.nacionalidade = nacionalidade;
 		this.telefone = telefone;
-		this.reserva_id = reserva_id;
+		this.id_reserva = id_reserva;
 	}
 	public Hospede(Integer id, String nome, String sobrenome, LocalDate data_nascimento, String nacionalidade,
 			String telefone, Integer reserva_id) {
@@ -29,7 +29,7 @@ public class Hospede {
 		this.data_nascimento = data_nascimento;
 		this.nacionalidade = nacionalidade;
 		this.telefone = telefone;
-		this.reserva_id = reserva_id;
+		this.id_reserva = reserva_id;
 	}
 	public Integer getId() {
 		return id;
@@ -68,14 +68,14 @@ public class Hospede {
 		this.telefone = telefone;
 	}
 	public Integer getReserva_id() {
-		return reserva_id;
+		return id_reserva;
 	}
 	public void setReserva_id(Integer reserva_id) {
-		this.reserva_id = reserva_id;
+		this.id_reserva = reserva_id;
 	}
 	@Override
 	public String toString() {
 		return String.format("{Hospede ID: %s, Nome: %s, Sobrenome: %s, Reserva ID: %d}",
-				this.id, this.nome, this.sobrenome, this.reserva_id);
+				this.id, this.nome, this.sobrenome, this.id_reserva);
 	}
 }

@@ -77,9 +77,9 @@ public class Sucesso extends JDialog {
 				getRootPane().setDefaultButton(okButton);
 			}
 			{
-				JButton cancelButton = new JButton("Cancel");
-				cancelButton.setActionCommand("Cancel");
-				buttonPane.add(cancelButton);
+//				JButton cancelButton = new JButton("Cancel");
+//				cancelButton.setActionCommand("Cancel");
+//				buttonPane.add(cancelButton);
 			}
 		}
 	}

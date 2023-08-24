@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -60,7 +61,6 @@ public class HospedeDAO {
 				return updateCount;
 			}
 		}catch (SQLException e) {
-			JOptionPane.showMessageDialog(null,"Erro ao alterar os dados.","Tente mais tarde.",JOptionPane.ERROR_MESSAGE);
 			throw new RuntimeException(e);
 		}
 	}
@@ -74,11 +74,11 @@ public class HospedeDAO {
 				int updateCount = pstm.getUpdateCount();
 				return updateCount;
 			}
-		}catch (SQLException e) {JOptionPane.showMessageDialog(null, "Erro ao deletar Hospede", "Tente mais tarde.", JOptionPane.ERROR_MESSAGE
-				);
-		throw new RuntimeException(e);
+		}catch (SQLException e) {
+			throw new RuntimeException(e);
 		}
 	}
+
 	public void deletarReserva(Integer id){
 		String sql = "DELETE FROM RESERVA WHERE ID = ?";
 		try{
@@ -91,47 +91,50 @@ public class HospedeDAO {
 		throw new RuntimeException(e);
 		}
 	}
-//	public List<Hospede> listar(){
-//		List<Hospede> hospedes = new ArrayList<>();
-//		String sql = "SELECT ID, NOME, SOBRENOME, DATA_NASCIMENTO, NACIONALIDADE, TELEFONE, RESERVA_ID FROM HOSPEDE";
-//		try {
-//			try(PreparedStatement pstm = connection.prepareStatement(sql)){
-//				pstm.execute();
-//				ResultSet rst = pstm.getResultSet();
-//				while(rst.next()) {
-//					Hospede hospede = 
-//							new Hospede(rst.getInt(1), rst.getString(2), rst.getString(3), rst.getDate(4), rst.getString(5), rst.getString(6), rst.getInt(7));
-//					hospedes.add(hospede);
-//				}
-//				return hospedes;
-//			}
-//		}
-//		catch (SQLException e) {
-//			JOptionPane.showMessageDialog(null,"Tente mais tarde.","Erro ao trazer os dados.",JOptionPane.ERROR_MESSAGE);
-//			throw new RuntimeException(e);
-//		}
-//	}
-//	public List<Hospede> listar(String nome){
-//		List<Hospede> hospedes = new ArrayList<>();
-//		try {
-//			String sql = "SELECT ID, NOME, SOBRENOME, DATA_NASCIMENTO, NACIONALIDADE, TELEFONE, RESERVA_ID FROM HOSPEDE WHERE NOME LIKE ?";
-//			try(PreparedStatement pstm = connection.prepareStatement(sql)){
-//				pstm.setString(1, nome.concat("%"));
-//				pstm.execute();
-//
-//				try(ResultSet rst = pstm.getResultSet()){
-//					while(rst.next()) {
-//						Hospede hospede = 
-//								new Hospede(rst.getInt(1), rst.getString(2), rst.getString(4), rst.getDate(5), rst.getString(6), rst.getString(7), rst.getInt(8));
-//						hospedes.add(hospede);
-//					}
-//				}
-//			}
-//			return hospedes;
-//		}catch (SQLException e) {
-//			JOptionPane.showMessageDialog(null,"Tente mais tarde.","Erro ao trazer os dados.",JOptionPane.ERROR_MESSAGE);
-//			throw new RuntimeException(e);
-//		}
-//	}
+	public List<Hospede> listar(){
+		List<Hospede> hospedes = new ArrayList<>();
+		
+		try {
+			String sql = "SELECT ID, NOME, SOBRENOME, DATA_NASCIMENTO, NACIONALIDADE, TELEFONE, ID_RESERVA FROM HOSPEDE";
+			try (PreparedStatement pstm = connection.prepareStatement(sql)) {
+				pstm.execute();
+
+				transformar(hospedes, pstm);
+			}
+			return hospedes;
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	public List<Hospede> buscar(String id){
+		List<Hospede> hospedes = new ArrayList<>();
+		try {
+			String sql = "SELECT ID, NOME, SOBRENOME, DATA_NASCIMENTO, NACIONALIDADE, TELEFONE, ID_RESERVA FROM HOSPEDE WHERE ID = ?";
+			try(PreparedStatement pstm = connection.prepareStatement(sql)){
+				pstm.setString(1, id);
+				pstm.execute();
+				transformar(hospedes, pstm);
+			}
+			return hospedes;
+		}catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	private void transformar(List<Hospede> hospedes, PreparedStatement pstm)throws SQLException {
+		try(ResultSet rst = pstm.getResultSet()){
+			while(rst.next()) {
+				int id = rst.getInt("id");
+				String nome = rst.getString("nome");
+				String sobrenome = rst.getString("sobrenome");
+				LocalDate data_nascimento = rst.getDate("data_nascimento").toLocalDate().plusDays(1);
+				String nacionalidade = rst.getString("nacionalidade");
+				String telefone = rst. getString("telefone");
+				int id_reserva = rst.getInt("id_reserva");
+
+				Hospede hospede = new Hospede(id, nome, sobrenome, data_nascimento, nacionalidade, telefone, id_reserva);
+				hospedes.add(hospede);
+			}
+		}
+	}
 }
 
