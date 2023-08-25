@@ -21,6 +21,13 @@ O Hotel Alura, conhecido por suas espetaculares instalações e pacotes promocio
 - Permitir criar, editar e excluir uma reserva para clientes;
 - Pesquisar na base de dados toda a informação de clientes e reservas;
 - Registrar, editar e excluir os dados dos hóspedes;
-- Calcule o valor da reserva com base no número de dias da reserva e uma taxa diária com o valor atribuído por você na moeda Real. Por exemplo, se tivermos uma reserva de 3 dias e o valor de nossa diária for de R$20 devemos multiplicar esses 3 dias pelo valor da diária, totalizando R$60. Tudo isso deve ser feito automaticamente e mostrado ao usuário antes de salvar a reserva;
+- Calcule o valor da reserva com base no número de dias da reserva e uma taxa diária com o valor atribuído por você na moeda Real, tudo isso deve ser feito automaticamente e mostrado ao usuário antes de salvar a reserva;
 - Banco de dados para armazenar todos os dados solicitados anteriormente.
+
+---
+
+## Desafio Concluído 🚀💻
+<p align="center" >
+     <img width="300" heigth="300" src="bin/imagenes/badge_concluido.png">
+</p>
 
