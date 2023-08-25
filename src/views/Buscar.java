@@ -27,6 +27,7 @@ import javax.swing.ListSelectionModel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
@@ -51,7 +52,7 @@ public class Buscar extends JFrame {
 	private HospedeController hospedeController;
 	private ReservasView reservasView;
 	String reserva;
-	String hospede;
+	Object hospede;
 
 	/**
 	 * Launch the application.
@@ -139,8 +140,8 @@ public class Buscar extends JFrame {
 		JScrollPane scroll_tableHuespedes = new JScrollPane(tbHospedes);
 		panel.addTab("Hóspedes", new ImageIcon(Buscar.class.getResource("/imagenes/pessoas.png")), scroll_tableHuespedes, null);
 		scroll_tableHuespedes.setVisible(true);
-		
-		
+
+
 		JLabel lblNewLabel_2 = new JLabel("");
 		lblNewLabel_2.setIcon(new ImageIcon(Buscar.class.getResource("/imagenes/Ha-100px.png")));
 		lblNewLabel_2.setBounds(56, 51, 104, 107);
@@ -263,9 +264,16 @@ public class Buscar extends JFrame {
 		btnEditar.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				int listaReserva = tbReservas.getSelectedRow();
+				int listaHospede = tbHospedes.getSelectedRow();
+
 				if(listaReserva >= 0){
 					alterarTabelaReserva();
 					limparTabela();
+					preencherTabelaReserva();
+				}else if(listaHospede >=0) {
+					alterarTabelaHospede();
+					limparTabela();
+					preencherTabelaHospede();
 					preencherTabelaReserva();
 				}
 			}
@@ -287,22 +295,36 @@ public class Buscar extends JFrame {
 		btnDeletar.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				int listaReservas = tbReservas.getSelectedRow();
+				int listaHospedes = tbHospedes.getSelectedRow();
 				if(listaReservas >=0){
 					reserva = tbReservas.getValueAt(listaReservas, 0).toString();
-					int confirmar = JOptionPane.showConfirmDialog(null, "Deseja excluir esse registro?");
+					int confirmar = JOptionPane.showConfirmDialog(null, "Deseja Excluir Essa Reserva?");
 					if(confirmar == JOptionPane.YES_OPTION) {
 						String valor = tbReservas.getValueAt(listaReservas, 0).toString();
 						reservaController.deletar(Integer.valueOf(valor));
-						JOptionPane.showMessageDialog(contentPane, "Registro deletado com sucesso.");
+						JOptionPane.showMessageDialog(contentPane, "Reserva deletado com sucesso.");
 						limparTabela();
 						preencherTabelaReserva();
 						preencherTabelaHospede();
-					
+
 					}
+				}else if(listaHospedes >=0) {
+					hospede = tbHospedes.getValueAt(listaHospedes, 0);toString();
+					int confirmaH = JOptionPane.showConfirmDialog(null, "Deseja Apagar o Hóspede?");
+					if(confirmaH == JOptionPane.YES_OPTION) {
+						String valor = tbHospedes.getValueAt(listaHospedes, 0).toString();
+						hospedeController.deletar(Integer.valueOf(valor));
+						JOptionPane.showMessageDialog(contentPane, "Hóspede Apagado");
+						limparTabela();
+						preencherTabelaHospede();
+						preencherTabelaReserva();
+					}
+				}else {
+					JOptionPane.showMessageDialog(null, "Erro ao Eliminar");
 				}
 			}
 		});
-		
+
 		btnDeletar.setLayout(null);
 		btnDeletar.setBackground(new Color(12, 138, 199));
 		btnDeletar.setBounds(767, 508, 122, 35);
@@ -324,7 +346,6 @@ public class Buscar extends JFrame {
 	private List<Reserva> buscarReserva(){
 		return this.reservaController.buscar(txtBuscar.getText());
 	}
-
 	private void preencherTabelaReserva(){
 		List<Reserva> reservas = listarReserva();
 		modelo.setRowCount(0);
@@ -351,7 +372,7 @@ public class Buscar extends JFrame {
 	}
 	public void alterarTabelaReserva() {
 		Optional.ofNullable(modelo.getValueAt(tbReservas.getSelectedRow(), tbReservas.getSelectedColumn()))
-		.ifPresent(fila ->{
+		.ifPresent(filaReserva ->{
 			LocalDate dataE;
 			LocalDate dataS;
 			try {
@@ -387,14 +408,14 @@ public class Buscar extends JFrame {
 			return "";
 		}
 	}
-	
+
 	private List<Hospede> listarHospede(){
 		return this.hospedeController.listar();
 	}
 	private List<Hospede> buscarHospede(){
 		return this.hospedeController.buscar(txtBuscar.getText());
 	}
-	
+
 	private void preencherTabelaHospede(){
 		List<Hospede> hospedes = listarHospede();
 		modeloHospedes.setRowCount(0);
@@ -409,7 +430,7 @@ public class Buscar extends JFrame {
 	}
 	private void buscarTabelaHospede(){
 		List<Hospede> hospedes = buscarHospede();
-		modeloHospedes.setRowCount(0);
+
 		try {
 			for (Hospede hospede : hospedes) {
 				modeloHospedes.addRow(new Object[] 
@@ -418,8 +439,30 @@ public class Buscar extends JFrame {
 		} catch (Exception e) {
 			throw e;
 		}
-
 	}
+	public void alterarTabelaHospede() {
+		Optional.ofNullable(modeloHospedes.getValueAt(tbHospedes.getSelectedRow(), tbHospedes.getSelectedColumn()))
+		.ifPresentOrElse(filaHospede ->{
+
+			String nome = (String) modeloHospedes.getValueAt(tbHospedes.getSelectedRow(), 1);
+			String sobrenome = (String) modeloHospedes.getValueAt(tbHospedes.getSelectedRow(), 2);
+			Date data_nascimento = Date.valueOf(modeloHospedes.getValueAt(tbHospedes.getSelectedRow(), 3).toString());
+			String nacionalidade = (String) modeloHospedes.getValueAt(tbHospedes.getSelectedRow(), 4);
+			String telefone = (String) modeloHospedes.getValueAt(tbHospedes.getSelectedRow(), 5);
+			Integer id_reserva = Integer.valueOf(modeloHospedes.getValueAt(tbHospedes.getSelectedRow(), 6).toString());
+			Integer id = Integer.valueOf(modeloHospedes.getValueAt(tbHospedes.getSelectedRow(),0).toString());
+			
+			if(tbHospedes.getSelectedColumn() == 0 || tbHospedes.getSelectedColumn() == 6) {
+				JOptionPane.showMessageDialog(this, "Não Pode Alterar os ID");
+			}else {
+				this.hospedeController.alterar(nome, sobrenome, data_nascimento, nacionalidade, telefone, id_reserva, id);
+				JOptionPane.showMessageDialog(this, String.format("Registro Alterado com Sucesso."));
+			}
+		}, () -> JOptionPane.showInternalMessageDialog(this, "Atenção"));
+	}
+
+
+
 	private void limparTabela() {
 		((DefaultTableModel) tbHospedes.getModel()).setRowCount(0);
 		((DefaultTableModel) tbReservas.getModel()).setRowCount(0);

@@ -45,50 +45,33 @@ public class HospedeDAO {
 			throw new RuntimeException(e);
 		}
 	}
-	public int alterar(String nome, String sobrenome, Date data_nascimento, String nacionalidade, String telefone, Integer id) {
+	public void alterar(String nome, String sobrenome, Date data_nascimento, String nacionalidade, String telefone, Integer id_reserva, Integer id) {
 		try {
 			String sql = 
-					"UPDATE HOSPEDE SET nome = ?, sobrenome = ?, data_nascimento = ?, nacionalidade = ?, telefone = ? WHERE id = ?";
-			try (PreparedStatement pstm = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+					"UPDATE HOSPEDE SET nome = ?, sobrenome = ?, data_nascimento = ?, nacionalidade = ?, telefone = ?, id_reserva = ? WHERE id = ?";	
+			try (PreparedStatement pstm = connection.prepareStatement(sql)) {
 				pstm.setString(1, nome);
 				pstm.setString(2, sobrenome);
-				pstm.setDate(3, data_nascimento);
+				pstm.setObject(3, data_nascimento);
 				pstm.setString(4, nacionalidade);
 				pstm.setString(5, telefone);
-				pstm.setInt(6, id);
+				pstm.setInt(6, id_reserva);
+				pstm.setInt(7, id);
 				pstm.execute();
-				int updateCount = pstm.getUpdateCount();
-				return updateCount;
 			}
 		}catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
 	}
-	public int deletar(Integer id, Integer reserva_id){
+	public void deletar(Integer id	){
 		try{
 			String sql = "DELETE FROM HOSPEDE WHERE ID = ?";
 			try (PreparedStatement pstm = connection.prepareStatement(sql)) {
 				pstm.setInt(1, id);
 				pstm.execute();
-				deletarReserva(reserva_id);
-				int updateCount = pstm.getUpdateCount();
-				return updateCount;
 			}
 		}catch (SQLException e) {
 			throw new RuntimeException(e);
-		}
-	}
-
-	public void deletarReserva(Integer id){
-		String sql = "DELETE FROM RESERVA WHERE ID = ?";
-		try{
-			try (PreparedStatement pstm = connection.prepareStatement(sql)) {
-				pstm.setInt(1, id);
-				pstm.execute();
-			}
-		}catch (SQLException e) {JOptionPane.showMessageDialog(null, "Erro ao deletar Reserva", "Tente mais tarde.", JOptionPane.ERROR_MESSAGE
-				);
-		throw new RuntimeException(e);
 		}
 	}
 	public List<Hospede> listar(){

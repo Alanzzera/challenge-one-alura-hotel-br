@@ -25,11 +25,11 @@ public class HospedeController {
 		hospede.getReserva_id();
 		this.hospedeDAO.inserir(hospede);
 	}
-	private int alterar(String nome, String sobrenome, Date data_nascimento, String nacionalidade, String telefone, Integer id) {
-		return this.hospedeDAO.alterar(nome, sobrenome, data_nascimento, nacionalidade, telefone, id);
+	public void alterar(String nome, String sobrenome, Date data_nascimento, String nacionalidade, String telefone, Integer id_reserva, Integer id) {
+		this.hospedeDAO.alterar(nome, sobrenome, data_nascimento, nacionalidade, telefone, id_reserva, id);
 	}
-	public int deletar(Integer id, Integer reserva_id) {
-		return this.hospedeDAO.deletar(id, reserva_id);
+	public void deletar(Integer id_reserva) {
+		this.hospedeDAO.deletar(id_reserva);
 	}
 	public List<Hospede> listar(){
 		return this.hospedeDAO.listar();
