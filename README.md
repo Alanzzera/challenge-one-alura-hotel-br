@@ -31,3 +31,7 @@ O Hotel Alura, conhecido por suas espetaculares instalações e pacotes promocio
      <img width="300" heigth="300" src="bin/imagenes/badge_concluido.png">
 </p>
 
+## Melhorias Propostas
+-Conversão das datas para formato Brasilleiro dd/MM/yyyy.
+-Conversão dos valores para formato Reais R$ 0,00.
+
